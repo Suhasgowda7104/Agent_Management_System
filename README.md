@@ -82,28 +82,27 @@ The backend runs on http://localhost:5000
 ```
 ## <a name="project-structure">🗂 Project Structure</a>
 agent-management-system/
-├── backend/
-│   ├── controllers/
-│   ├── models/
-│   ├── routes/
-│   ├── middleware/
-│   └── server.js
-├── frontend/
-│   ├── components/
-│   ├── pages/
-│   ├── context/
-│   └── App.js
+- ├── backend/
+- │   ├── controllers/
+- │   ├── models/
+- │   ├── routes/
+- │   ├── middleware/
+- │   └── server.js
+- ├── frontend/
+- │   ├── components/
+- │   ├── pages/
+- │   ├── context/
+- │   └── App.js
 
 ## <a name="authentication-roles">🛡 Authentication & Roles</a>
 
-The system uses JWT to manage sessions and access rights.
-Admin: Full access to manage agents, assign tasks, and view reports.
-Agent: Can view assigned tasks, update progress, and mark tasks as completed.
+- The system uses JWT to manage sessions and access rights.
+- Admin: Full access to manage agents, assign tasks, and view reports.
+- Agent: Can view assigned tasks, update progress, and mark tasks as completed.
 
 ## <a name="links">🔗 Links</a>
 - [Source Code](https://github.com/yourusername/media-sentinel)
 - [Issue Tracker](https://github.com/yourusername/media-sentinel/issues)
 - [Model Dataset](yourdataseturl.com)
-- 
 <div align="center"> <h3>Built with ❤️ for efficient agent management</h3> </div>
 
