@@ -82,8 +82,8 @@ npm install
 npm start
 ```
 
-The frontend runs on http://localhost:3000
-The backend runs on http://localhost:5000
+- The frontend runs on http://localhost:3000
+- The backend runs on http://localhost:5000
 
 ## <a name="project-structure">🗂 Project Structure</a>
 agent-management-system/
