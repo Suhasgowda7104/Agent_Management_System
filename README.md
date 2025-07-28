@@ -44,7 +44,7 @@ The application features both Admin and Agent roles with distinct dashboards and
 👉 **Smart File Processing** – Upload CSV/Excel files with automatic validation and data extraction 
 👉 **Intelligent Distribution** – Automatic equal distribution of data among agents with remainder handling  
 👉 **Real-time Dashboard** – Interactive dashboard with tabbed navigation and responsive design 
-👉 **Data Visualization** –  Comprehensive view of distributed lists with expandable details  
+👉 **Data Visualization** – Comprehensive view of distributed lists with expandable details  
 👉 **File Validation** – Support for CSV, XLSX, and XLS formats with size and format validation 
 👉 **Distribution Analytics** – Visual reports showing distribution summary and agent assignments
 
