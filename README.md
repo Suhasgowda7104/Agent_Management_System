@@ -65,20 +65,26 @@ Ensure you have the following installed:
 ```bash
 git clone https://github.com/yourusername/agent-management-system.git
 cd agent-management-system
+```
 
-2. Setup backend
+**2. Setup backend**
+
+```bash
 cd backend
 npm install
 npm run dev
+```
+**3. Setup frontend**
 
-3. Setup frontend
+```bash
 cd frontend
 npm install
 npm start
+```
 
 The frontend runs on http://localhost:3000
 The backend runs on http://localhost:5000
-```
+
 ## <a name="project-structure">🗂 Project Structure</a>
 agent-management-system/
 - ├── backend/
