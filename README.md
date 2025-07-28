@@ -39,15 +39,14 @@ The application features both Admin and Agent roles with distinct dashboards and
 
 ## <a name="features">🚀 Features</a>
 
-👉 **User Authentication** – Secure login/signup with JWT  
-👉 **Admin Dashboard** – Manage agents, tasks, and monitor status  
-👉 **Agent Dashboard** – View assigned tasks, update status, submit reports  
-👉 **Role-based Access** – Controlled access for Admins and Agents  
-👉 **Task Management** – Assign tasks with deadlines and priorities  
-👉 **Performance Metrics** – Monitor agent efficiency  
-👉 **Responsive UI** – Mobile and desktop-friendly  
-👉 **PDF Report Generation** – Export performance or task reports  
-👉 **Search & Filters** – Quickly find agents or tasks using advanced filters  
+👉 **Secure Authentication** – JWT-based login and registration system with password encryption  
+👉 **Agent Management** – Create, view, and delete agents with comprehensive profile information 
+👉 **Smart File Processing** – Upload CSV/Excel files with automatic validation and data extraction 
+👉 **Intelligent Distribution** – Automatic equal distribution of data among agents with remainder handling  
+👉 **Real-time Dashboard** – Interactive dashboard with tabbed navigation and responsive design 
+👉 **Data Visualization** –  Comprehensive view of distributed lists with expandable details  
+👉 **File Validation** – Support for CSV, XLSX, and XLS formats with size and format validation 
+👉 **Distribution Analytics** – Visual reports showing distribution summary and agent assignments
 
 ## <a name="quick-start">⚡ Quick Start</a>
 
@@ -102,7 +101,8 @@ agent-management-system/
 
 ## <a name="links">🔗 Links</a>
 - [Source Code](https://github.com/yourusername/media-sentinel)
-- [Issue Tracker](https://github.com/yourusername/media-sentinel/issues)
-- [Model Dataset](yourdataseturl.com)
+- [Demo video](yourdataseturl.com)
+- [Live website](yourdataseturl.com)
+  
 <div align="center"> <h3>Built with ❤️ for efficient agent management</h3> </div>
 
