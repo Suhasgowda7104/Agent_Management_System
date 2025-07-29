@@ -63,7 +63,7 @@ Ensure you have the following installed:
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/agent-management-system.git
+https://github.com/Suhasgowda7104/Agent_Management_System.git
 cd agent-management-system
 ```
 
