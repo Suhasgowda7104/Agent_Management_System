@@ -63,7 +63,7 @@ Ensure you have the following installed:
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/agent-management-system.git
+https://github.com/Suhasgowda7104/Agent_Management_System.git
 cd agent-management-system
 ```
 
@@ -106,9 +106,9 @@ agent-management-system/
 - Agent: Can view assigned tasks, update progress, and mark tasks as completed.
 
 ## <a name="links">🔗 Links</a>
-- [Source Code](https://github.com/yourusername/media-sentinel)
-- [Demo video](yourdataseturl.com)
-- [Live website](yourdataseturl.com)
+- [Source Code](https://github.com/Suhasgowda7104/Agent_Management_System)
+- [Demo video](https://drive.google.com/drive/folders/1FHW4Tgh3PXF3vl64vnm7OW5qxuawfwbl?usp=sharing)
+- [Live website](https://agent-management-system-inky.vercel.app)
   
-<div align="center"> <h3>Built with ❤️ for efficient agent management</h3> </div>
+<div align="center"> <h3>Built with ❤️ for efficient agent task management</h3> </div>
 
