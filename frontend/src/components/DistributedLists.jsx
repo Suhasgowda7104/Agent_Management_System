@@ -15,7 +15,7 @@ const DistributedLists = () => {
     try {
       setLoading(true);
       const response = await uploadAPI.getDistributions();
-      setDistributions(response.data.distributions);
+      setDistributions(response.data.distributions || []);
       setError('');
     } catch (error) {
       console.error('Error fetching distributions:', error);
@@ -30,6 +30,16 @@ const DistributedLists = () => {
       ...prev,
       [distributionId]: !prev[distributionId]
     }));
+  };
+
+  // Helper function to safely get agent name
+  const getAgentName = (agent) => {
+    return agent?.name || 'Unknown Agent';
+  };
+
+  // Helper function to safely get agent email
+  const getAgentEmail = (agent) => {
+    return agent?.email || 'Unknown Email';
   };
 
   const groupedDistributions = distributions.reduce((acc, dist) => {
@@ -63,12 +73,14 @@ const DistributedLists = () => {
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:p-6">
           <div className="text-center">
-            <p className="text-red-600">{error}</p>
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <p>{error}</p>
+            </div>
             <button
               onClick={fetchDistributions}
-              className="mt-2 text-blue-600 hover:text-blue-800 font-medium"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium"
             >
-              Try again
+              Try Again
             </button>
           </div>
         </div>
@@ -110,30 +122,30 @@ const DistributedLists = () => {
                 <div key={key} className="border border-gray-200 rounded-lg p-4">
                   <div className="mb-4">
                     <h4 className="text-md font-medium text-gray-900">
-                      {group.fileName}
+                      {group.fileName || 'Unknown File'}
                     </h4>
                     <p className="text-sm text-gray-500">
                       Uploaded on {new Date(group.uploadDate).toLocaleString()}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Total agents: {group.distributions.length} | 
-                      Total items: {group.distributions.reduce((sum, d) => sum + d.items.length, 0)}
+                      Total agents: {group.distributions?.length || 0} | 
+                      Total items: {group.distributions?.reduce((sum, d) => sum + (d.items?.length || 0), 0) || 0}
                     </p>
                   </div>
                   
                   <div className="space-y-4">
-                    {group.distributions.map((distribution) => (
+                    {group.distributions?.map((distribution) => (
                       <div key={distribution._id} className="bg-gray-50 rounded-lg p-4">
                         <div className="flex justify-between items-center mb-2">
                           <div>
                             <h5 className="font-medium text-gray-900">
-                              {distribution.agent.name}
+                              {getAgentName(distribution.agent)}
                             </h5>
                             <p className="text-sm text-gray-600">
-                              {distribution.agent.email}
+                              {getAgentEmail(distribution.agent)}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {distribution.items.length} items assigned
+                              {distribution.items?.length || 0} items assigned
                             </p>
                           </div>
                           <button
@@ -146,48 +158,58 @@ const DistributedLists = () => {
                         
                         {expandedItems[distribution._id] && (
                           <div className="mt-4">
-                            <div className="overflow-x-auto">
-                              <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-100">
-                                  <tr>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                      #
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                      First Name
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                      Phone
-                                    </th>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                      Notes
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                  {distribution.items.map((item, index) => (
-                                    <tr key={index}>
-                                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                                        {index + 1}
-                                      </td>
-                                      <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {item.firstName}
-                                      </td>
-                                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                                        {item.phone}
-                                      </td>
-                                      <td className="px-4 py-2 text-sm text-gray-500">
-                                        {item.notes || '-'}
-                                      </td>
+                            {distribution.items?.length > 0 ? (
+                              <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                  <thead className="bg-gray-100">
+                                    <tr>
+                                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        #
+                                      </th>
+                                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        First Name
+                                      </th>
+                                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Phone
+                                      </th>
+                                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Notes
+                                      </th>
                                     </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
+                                  </thead>
+                                  <tbody className="bg-white divide-y divide-gray-200">
+                                    {distribution.items.map((item, index) => (
+                                      <tr key={index}>
+                                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                                          {index + 1}
+                                        </td>
+                                        <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                          {item?.firstName || 'N/A'}
+                                        </td>
+                                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                                          {item?.phone || 'N/A'}
+                                        </td>
+                                        <td className="px-4 py-2 text-sm text-gray-500">
+                                          {item?.notes || '-'}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-500 text-center py-4">
+                                No items found for this agent
+                              </p>
+                            )}
                           </div>
                         )}
                       </div>
-                    ))}
+                    )) || (
+                      <p className="text-sm text-gray-500 text-center py-4">
+                        No distributions found
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
