@@ -2,31 +2,18 @@ const express = require('express');
 const multer = require('multer');
 const csv = require('csv-parser');
 const xlsx = require('xlsx');
-const fs = require('fs');
-const path = require('path');
 const Agent = require('../models/Agent');
 const DistributedList = require('../models/List');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-// Configure multer for file upload
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
+// Configure multer for memory storage (Vercel compatible)
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ['.csv', '.xlsx', '.xls'];
-  const fileExt = path.extname(file.originalname).toLowerCase();
+  const fileExt = file.originalname.toLowerCase().substr(file.originalname.lastIndexOf('.'));
   
   if (allowedTypes.includes(fileExt)) {
     cb(null, true);
@@ -39,40 +26,68 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 4 * 1024 * 1024, // 4MB limit for Vercel
+    fieldSize: 4 * 1024 * 1024
   }
 });
 
-// Function to parse CSV file
-const parseCSV = (filePath) => {
+// Function to parse CSV from buffer
+const parseCSVFromBuffer = (buffer) => {
   return new Promise((resolve, reject) => {
     const results = [];
+    const csvString = buffer.toString('utf8');
     
-    fs.createReadStream(filePath)
-      .pipe(csv())
-      .on('data', (data) => {
-        // Validate required fields
-        if (data.FirstName && data.Phone) {
+    // Split CSV into lines
+    const lines = csvString.split('\n');
+    if (lines.length < 2) {
+      reject(new Error('CSV file must have at least a header and one data row'));
+      return;
+    }
+    
+    // Get headers
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    
+    // Check required headers
+    const requiredHeaders = ['FirstName', 'Phone'];
+    const hasRequiredHeaders = requiredHeaders.every(header => 
+      headers.some(h => h.toLowerCase() === header.toLowerCase())
+    );
+    
+    if (!hasRequiredHeaders) {
+      reject(new Error('CSV must contain FirstName and Phone columns'));
+      return;
+    }
+    
+    // Parse data rows
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line) {
+        const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+        const row = {};
+        
+        headers.forEach((header, index) => {
+          row[header] = values[index] || '';
+        });
+        
+        // Map to standard format
+        if (row.FirstName && row.Phone) {
           results.push({
-            firstName: data.FirstName.trim(),
-            phone: data.Phone.toString().trim(),
-            notes: data.Notes ? data.Notes.trim() : ''
+            firstName: row.FirstName.trim(),
+            phone: row.Phone.toString().trim(),
+            notes: row.Notes ? row.Notes.trim() : ''
           });
         }
-      })
-      .on('end', () => {
-        resolve(results);
-      })
-      .on('error', (error) => {
-        reject(error);
-      });
+      }
+    }
+    
+    resolve(results);
   });
 };
 
-// Function to parse Excel file
-const parseExcel = (filePath) => {
+// Function to parse Excel from buffer
+const parseExcelFromBuffer = (buffer) => {
   try {
-    const workbook = xlsx.readFile(filePath);
+    const workbook = xlsx.read(buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     const data = xlsx.utils.sheet_to_json(worksheet);
@@ -85,7 +100,7 @@ const parseExcel = (filePath) => {
     
     return results;
   } catch (error) {
-    throw new Error('Error parsing Excel file');
+    throw new Error('Error parsing Excel file: ' + error.message);
   }
 };
 
@@ -116,40 +131,46 @@ const distributeItems = (items, agents) => {
 // @desc    Upload CSV/Excel file and distribute among agents
 // @access  Private
 router.post('/', auth, upload.single('file'), async (req, res) => {
+  // Set longer timeout for processing
+  req.setTimeout(120000); // 2 minutes
+  
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'Please upload a file' });
     }
 
+    console.log('Processing file:', req.file.originalname, 'Size:', req.file.size);
+
     // Get all agents created by this user
     const agents = await Agent.find({ createdBy: req.user._id });
     
     if (agents.length === 0) {
-      // Clean up uploaded file
-      fs.unlinkSync(req.file.path);
       return res.status(400).json({ message: 'No agents found. Please create agents first.' });
     }
 
     let parsedData = [];
-    const fileExt = path.extname(req.file.originalname).toLowerCase();
+    const fileExt = req.file.originalname.toLowerCase().substr(req.file.originalname.lastIndexOf('.'));
 
     try {
       if (fileExt === '.csv') {
-        parsedData = await parseCSV(req.file.path);
+        parsedData = await parseCSVFromBuffer(req.file.buffer);
       } else if (fileExt === '.xlsx' || fileExt === '.xls') {
-        parsedData = await parseExcel(req.file.path);
+        parsedData = parseExcelFromBuffer(req.file.buffer);
       }
     } catch (parseError) {
-      // Clean up uploaded file
-      fs.unlinkSync(req.file.path);
-      return res.status(400).json({ message: 'Error parsing file. Please check the file format.' });
+      console.error('Parse error:', parseError);
+      return res.status(400).json({ 
+        message: 'Error parsing file: ' + parseError.message 
+      });
     }
 
     if (parsedData.length === 0) {
-      // Clean up uploaded file
-      fs.unlinkSync(req.file.path);
-      return res.status(400).json({ message: 'No valid data found in the file. Please check the format (FirstName, Phone, Notes).' });
+      return res.status(400).json({ 
+        message: 'No valid data found in the file. Please check the format (FirstName, Phone, Notes).' 
+      });
     }
+
+    console.log('Parsed', parsedData.length, 'records');
 
     // Distribute items among agents
     const distribution = distributeItems(parsedData, agents);
@@ -170,23 +191,32 @@ router.post('/', auth, upload.single('file'), async (req, res) => {
       savedDistributions.push(saved);
     }
 
-    // Clean up uploaded file
-    fs.unlinkSync(req.file.path);
+    console.log('Distribution completed successfully');
 
     res.json({
       message: 'File uploaded and distributed successfully',
       totalItems: parsedData.length,
-      distributions: savedDistributions
+      distributions: savedDistributions,
+      fileInfo: {
+        originalName: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
+        uploadTime: new Date().toISOString()
+      }
     });
 
   } catch (error) {
-    // Clean up uploaded file if it exists
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
+    console.error('Upload error:', error);
+    
+    if (error.code === 'TIMEOUT') {
+      return res.status(408).json({ 
+        message: 'Upload timeout. Please try with a smaller file.' 
+      });
     }
     
-    console.error('Upload error:', error);
-    res.status(500).json({ message: 'Server error during file upload' });
+    res.status(500).json({ 
+      message: 'Server error during file upload: ' + error.message 
+    });
   }
 });
 
@@ -196,10 +226,20 @@ router.post('/', auth, upload.single('file'), async (req, res) => {
 router.get('/distributions', auth, async (req, res) => {
   try {
     const distributions = await DistributedList.find({ uploadedBy: req.user._id })
-      .populate('agent', 'name email')
+      .populate({
+        path: 'agent',
+        select: 'name email',
+        options: { 
+          lean: true,
+          strictPopulate: false 
+        }
+      })
       .sort({ createdAt: -1 });
 
-    res.json({ distributions });
+    // Filter out distributions where agent is null
+    const validDistributions = distributions.filter(dist => dist.agent);
+
+    res.json({ distributions: validDistributions });
   } catch (error) {
     console.error('Get distributions error:', error);
     res.status(500).json({ message: 'Server error' });
