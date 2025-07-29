@@ -1,12 +1,13 @@
 import axios from 'axios';
 import { getToken, logout } from '../utils/auth';
 
-// Create axios instance
+// Create axios instance with environment-based URL
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30 seconds timeout
 });
 
 // Request interceptor to add auth token
@@ -54,6 +55,7 @@ export const uploadAPI = {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
+    timeout: 60000, // 60 seconds for file upload
   }),
   getDistributions: () => api.get('/upload/distributions'),
 };
