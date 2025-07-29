@@ -110,5 +110,5 @@ agent-management-system/
 - [Demo video](https://drive.google.com/drive/folders/1FHW4Tgh3PXF3vl64vnm7OW5qxuawfwbl?usp=sharing)
 - [Live website](https://agent-management-system-inky.vercel.app)
   
-<div align="center"> <h3>Built with ❤️ for efficient agent management</h3> </div>
+<div align="center"> <h3>Built with ❤️ for efficient agent task management</h3> </div>
 
