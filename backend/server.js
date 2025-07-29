@@ -21,7 +21,7 @@ connectDB();
 const corsOptions = {
   origin: [
     'http://localhost:3000',
-    'https://your-app-frontend.vercel.app', // Replace with your actual frontend URL
+    'https://agent-management-system-inky.vercel.app', // Replace with your actual frontend URL
     process.env.FRONTEND_URL
   ],
   credentials: true,
