@@ -7,7 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000, // 30 seconds timeout
+  timeout: 30000,
 });
 
 // Request interceptor to add auth token
@@ -39,6 +39,7 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   register: (userData) => api.post('/auth/register', userData),
+  googleLogin: (token) => axios.post(`${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/auth/google/verify`, { token }),
   getCurrentUser: () => api.get('/auth/me'),
 };
 
@@ -55,7 +56,7 @@ export const uploadAPI = {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-    timeout: 60000, // 60 seconds for file upload
+    timeout: 120000,
   }),
   getDistributions: () => api.get('/upload/distributions'),
 };

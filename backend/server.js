@@ -4,8 +4,12 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+// Import Passport configuration
+require('./config/passport');
+
 // Import routes
 const authRoutes = require('./routes/auth');
+const googleAuthRoutes = require('./routes/googleAuth');
 const agentRoutes = require('./routes/agents');
 const uploadRoutes = require('./routes/upload');
 
@@ -21,7 +25,7 @@ connectDB();
 const corsOptions = {
   origin: [
     'http://localhost:3000',
-    'https://agent-management-system-inky.vercel.app', // Replace with your actual frontend URL
+    'https://agent-management-system-inky.vercel.app',
     process.env.FRONTEND_URL
   ],
   credentials: true,
@@ -33,10 +37,10 @@ app.use(cors(corsOptions));
 
 // Middleware
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/auth', googleAuthRoutes); // Google OAuth routes
 app.use('/api/agents', agentRoutes);
 app.use('/api/upload', uploadRoutes);
 

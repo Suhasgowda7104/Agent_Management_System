@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
+import GoogleAuthCallback from './components/GoogleAuthCallback';
 import Dashboard from './components/Dashboard';
 import { isAuthenticated } from './utils/auth';
 
@@ -35,6 +36,10 @@ function App() {
                 <Register />
               </AuthRoute>
             } 
+          />
+          <Route 
+            path="/auth/callback" 
+            element={<GoogleAuthCallback />} 
           />
           <Route 
             path="/dashboard" 
